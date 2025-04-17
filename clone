@@ -1,0 +1,14 @@
+git clone https://github.com/Khoa104/myweb1.git
+
+//push
+git add .
+git commit -m "ghi chú"
+git push
+
+// pull
+git pull
+
+
+
+git config --global user.email "nguyendangkhoa.104@gmail.com"
+git config --global user.name "khoa104"

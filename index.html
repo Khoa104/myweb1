@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Dự Báo Bán Hàng</title>
+  <style>
+    body {
+      font-family: Arial;
+      padding: 20px;
+      max-width: 600px;
+      margin: auto;
+    }
+    input, select, button {
+      margin: 5px 0;
+      padding: 8px;
+      width: 100%;
+    }
+    table {
+      width: 100%;
+      margin-top: 20px;
+      border-collapse: collapse;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: center;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Form Nhập Dự Báo Bán Hàng</h2>
+
+  <label>Tên sản phẩm:</label>
+  <input type="text" id="productName" placeholder="Ví dụ: Bánh mì">
+
+  <label>Tháng:</label>
+  <select id="month">
+    <option value="">-- Chọn tháng --</option>
+    <option value="01">Tháng 1</option>
+    <option value="02">Tháng 2</option>
+    <option value="03">Tháng 3</option>
+    <option value="04">Tháng 4</option>
+    <option value="05">Tháng 5</option>
+    <option value="06">Tháng 6</option>
+    <option value="07">Tháng 7</option>
+    <option value="08">Tháng 8</option>
+    <option value="09">Tháng 9</option>
+    <option value="10">Tháng 10</option>
+    <option value="11">Tháng 11</option>
+    <option value="12">Tháng 12</option>
+  </select>
+
+  <label>Số lượng dự báo:</label>
+  <input type="number" id="forecastQty" placeholder="Ví dụ: 1000">
+
+  <button onclick="addForecast()">Thêm dự báo</button>
+  <button onclick="clearForecast()">🗑 Xoá toàn bộ</button>
+
+  <h3>Dữ liệu dự báo đã lưu:</h3>
+  <table id="forecastTable">
+    <thead>
+      <tr>
+        <th>Sản phẩm</th>
+        <th>Tháng</th>
+        <th>Số lượng</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Dữ liệu sẽ hiển thị ở đây -->
+    </tbody>
+  </table>
+  <button onclick="downloadCSV()">📤 Xuất file Excel</button>
+
+  <script>
+    // Hàm hiển thị dữ liệu từ localStorage ra bảng
+    function loadForecast() {
+      const data = JSON.parse(localStorage.getItem("forecasts")) || [];
+      const table = document.getElementById("forecastTable").getElementsByTagName("tbody")[0];
+      table.innerHTML = ""; // xoá cũ trước khi render lại
+
+      data.forEach((item) => {
+        const newRow = table.insertRow();
+        newRow.innerHTML = `<td>${item.name}</td><td>${item.month}</td><td>${item.qty}</td>`;
+      });
+    }
+
+    // Hàm thêm dự báo mới
+    function addForecast() {
+      const name = document.getElementById("productName").value;
+      const month = document.getElementById("month").value;
+      const qty = document.getElementById("forecastQty").value;
+
+      if (!name || !month || !qty) {
+        alert("Vui lòng nhập đầy đủ thông tin!");
+        return;
+      }
+
+      const newForecast = { name, month, qty };
+
+      // Lấy dữ liệu cũ từ localStorage, rồi thêm mới
+      const forecasts = JSON.parse(localStorage.getItem("forecasts")) || [];
+      forecasts.push(newForecast);
+      localStorage.setItem("forecasts", JSON.stringify(forecasts));
+
+      loadForecast(); // cập nhật bảng
+      document.getElementById("productName").value = "";
+      document.getElementById("month").value = "";
+      document.getElementById("forecastQty").value = "";
+    }
+
+    // Hàm xóa toàn bộ dữ liệu
+    function clearForecast() {
+      if (confirm("Bạn có chắc chắn muốn xoá toàn bộ dữ liệu?")) {
+        localStorage.removeItem("forecasts");
+        loadForecast();
+      }
+    }
+
+    // Tự động hiển thị lại dữ liệu khi mở trang
+    window.onload = loadForecast;
+
+    function downloadCSV() {
+  const data = JSON.parse(localStorage.getItem("forecasts")) || [];
+  if (data.length === 0) {
+    alert("Chưa có dữ liệu để xuất!");
+    return;
+  }
+
+  // Tạo nội dung CSV
+  let csv = "Tên sản phẩm,Tháng,Số lượng\n";
+  data.forEach((item) => {
+    csv += `${item.name},${item.month},${item.qty}\n`;
+  });
+
+  // Tạo file và tải về
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = "du-bao-ban-hang.csv";
+  link.click();
+  URL.revokeObjectURL(link.href); // Giải phóng bộ nhớ
+  alert("Đã tải file CSV về máy!"); 
+  }
+
+  </script>
+
+</body>
+</html>
